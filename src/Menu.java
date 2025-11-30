@@ -1,9 +1,9 @@
 public class Menu {
     private String nama;
-    private double harga;
+    private int harga;
     private String kategori;
 
-    public Menu(String nama, double harga, String kategori) {
+    public Menu(String nama, int harga, String kategori) {
         this.nama = nama;
         this.harga = harga;
         this.kategori = kategori;
@@ -13,8 +13,12 @@ public class Menu {
         return nama;
     }
 
-    public double getHarga() {
+    public int getHarga() {
         return harga;
+    }
+
+    public void setHarga(int harga) {
+        this.harga = harga;
     }
 
     public String getKategori() {
