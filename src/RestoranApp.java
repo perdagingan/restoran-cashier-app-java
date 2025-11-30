@@ -3,6 +3,11 @@ import java.util.Scanner;
 
 public class RestoranApp {
 
+    // Konstanta untuk biaya dan diskon
+    private static final int BIAYA_PELAYANAN = 20000;
+    private static final int MINIMUM_B1G1_AMOUNT = 50000;
+    private static final int MINIMUM_DISCOUNT_AMOUNT = 100000;
+
     // Menggunakan ArrayList<Menu> untuk menyimpan daftar menu
     private static ArrayList<Menu> daftarMenu = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
@@ -31,8 +36,8 @@ public class RestoranApp {
         for (Menu menu : daftarMenu) {
             if (menu.getKategori().equals("Makanan")) {
                 System.out.println(nomor + ". " + menu.getNama() + " - Rp " + menu.getHarga());
+                nomor++;
             }
-            nomor++;
         }
 
         // Tampilkan Minuman menggunakan for-each loop
@@ -41,8 +46,8 @@ public class RestoranApp {
         for (Menu menu : daftarMenu) {
             if (menu.getKategori().equals("Minuman")) {
                 System.out.println(nomor + ". " + menu.getNama() + " - Rp " + menu.getHarga());
+                nomor++;
             }
-            nomor++;
         }
         System.out.println("================================\n");
     }
@@ -159,7 +164,7 @@ public class RestoranApp {
         int diskon10Persen = 0;
 
         // Penawaran B1G1 untuk Minuman jika total > Rp 50.000
-        if (subtotal > 50000 && jumlahMinuman >= 2) {
+        if (subtotal > MINIMUM_B1G1_AMOUNT && jumlahMinuman >= 2) {
             // Beli 1 Gratis 1: memberikan diskon seharga 1 minuman termurah
             diskonB1G1 = hargaMinumanTermurah;
         }
@@ -170,12 +175,12 @@ public class RestoranApp {
         int pajak = (int) (subtotalSetelahB1G1 * 0.10);
 
         // Biaya Pelayanan Rp 20.000
-        int biayaPelayanan = 20000;
+        int biayaPelayanan = BIAYA_PELAYANAN;
 
         int totalSementara = subtotalSetelahB1G1 + pajak + biayaPelayanan;
 
         // Diskon 10% jika total > Rp 100.000
-        if (totalSementara > 100000) {
+        if (totalSementara > MINIMUM_DISCOUNT_AMOUNT) {
             diskon10Persen = (int) (totalSementara * 0.10);
         }
 
