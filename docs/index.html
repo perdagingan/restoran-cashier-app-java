@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Kasir App</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        .menu-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .menu-item.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .menu-item h4 { color: #333; margin-bottom: 8px; }
+        .menu-item .price { 
+            color: #667eea; 
+            font-weight: bold; 
+            font-size: 18px; 
+        }
+        .menu-item .category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .quantity-control button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .quantity-control span {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .order-summary h3 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .order-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .order-line.total {
+            border-top: 2px solid #333;
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 20px;
+            color: #667eea;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+        .order-line.discount { color: #28a745; }
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .management-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .management-item .info h4 { margin-bottom: 4px; }
+        .management-item .info .details { color: #666; font-size: 14px; }
+        .management-item .actions { display: flex; gap: 10px; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+        }
+        .modal-content h3 { margin-bottom: 20px; }
+        .receipt {
+            background: #fff;
+            border: 2px dashed #333;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            max-width: 350px;
+            margin: 20px auto;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .receipt-total {
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-weight: bold;
+        }
+        .info-banner {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .info-banner a {
+            color: white;
+            text-decoration: underline;
+        }
+        @media (max-width: 768px) {
+            .tabs { flex-wrap: wrap; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .management-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .management-item .actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Restoran Kasir App</h1>
+        
+        <div class="info-banner">
+            📱 Versi GitHub Pages - Data disimpan di browser Anda (localStorage)
+            <br>
+            <a href="https://github.com/perdagingan/restoran-cashier-app-java" target="_blank">Lihat Source Code</a>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('order', event)">Pemesanan</button>
+            <button class="tab-btn" onclick="showTab('management', event)">Manajemen Menu</button>
+        </div>
+        
+        <!-- Order Tab -->
+        <div id="order-tab" class="tab-content active">
+            <div class="card">
+                <h2>📋 Daftar Menu</h2>
+                <div id="menu-list" class="menu-grid"></div>
+            </div>
+            
+            <div class="card">
+                <h2>🛒 Pesanan Anda</h2>
+                <div id="order-items"></div>
+                <div id="order-summary" class="order-summary" style="display:none;">
+                    <h3>Ringkasan Pembayaran</h3>
+                    <div id="summary-content"></div>
+                </div>
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="calculateOrder()">Hitung Total</button>
+                    <button class="btn btn-danger" onclick="clearOrder()">Hapus Semua</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Management Tab -->
+        <div id="management-tab" class="tab-content">
+            <div class="card">
+                <h2>➕ Tambah Menu Baru</h2>
+                <div class="form-group">
+                    <label>Nama Menu</label>
+                    <input type="text" id="new-menu-name" placeholder="Contoh: Soto Ayam">
+                </div>
+                <div class="form-group">
+                    <label>Harga (Rp)</label>
+                    <input type="number" id="new-menu-price" placeholder="Contoh: 25000">
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="new-menu-category">
+                        <option value="Makanan">Makanan</option>
+                        <option value="Minuman">Minuman</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="addMenu()">Tambah Menu</button>
+                <button class="btn btn-danger" onclick="resetMenu()" style="margin-left: 10px;">Reset ke Default</button>
+            </div>
+            
+            <div class="card">
+                <h2>📝 Kelola Menu</h2>
+                <div id="management-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Price Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Ubah Harga Menu</h3>
+            <div class="form-group">
+                <label>Harga Baru (Rp)</label>
+                <input type="number" id="edit-price">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="savePrice()">Simpan</button>
+                <button class="btn btn-danger" onclick="closeModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div id="receipt-content" class="receipt"></div>
+            <button class="btn btn-primary" onclick="closeReceiptModal()" style="width: 100%; margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        // Konstanta untuk biaya dan diskon
+        const BIAYA_PELAYANAN = 20000;
+        const MINIMUM_B1G1_AMOUNT = 50000;
+        const MINIMUM_DISCOUNT_AMOUNT = 100000;
+        
+        // Default menu data
+        const defaultMenuData = [
+            // Kategori Makanan
+            { nama: "Nasi Goreng", harga: 25000, kategori: "Makanan" },
+            { nama: "Mie Goreng", harga: 22000, kategori: "Makanan" },
+            { nama: "Ayam Bakar", harga: 35000, kategori: "Makanan" },
+            { nama: "Sate Ayam", harga: 30000, kategori: "Makanan" },
+            // Kategori Minuman
+            { nama: "Es Teh Manis", harga: 8000, kategori: "Minuman" },
+            { nama: "Es Jeruk", harga: 10000, kategori: "Minuman" },
+            { nama: "Kopi Hitam", harga: 12000, kategori: "Minuman" },
+            { nama: "Jus Alpukat", harga: 15000, kategori: "Minuman" }
+        ];
+        
+        let menuData = [];
+        let orderItems = {};
+        let editingIndex = -1;
+        
+        // Load menu from localStorage or use default
+        function loadMenu() {
+            const saved = localStorage.getItem('restoranMenu');
+            if (saved) {
+                menuData = JSON.parse(saved);
+            } else {
+                menuData = JSON.parse(JSON.stringify(defaultMenuData));
+                saveMenuToStorage();
+            }
+            renderMenu();
+            renderManagement();
+        }
+        
+        // Save menu to localStorage
+        function saveMenuToStorage() {
+            localStorage.setItem('restoranMenu', JSON.stringify(menuData));
+        }
+        
+        // Reset menu to default
+        function resetMenu() {
+            if (!confirm('Apakah Anda yakin ingin mereset menu ke default? Semua perubahan akan hilang.')) return;
+            menuData = JSON.parse(JSON.stringify(defaultMenuData));
+            saveMenuToStorage();
+            renderMenu();
+            renderManagement();
+            alert('Menu berhasil direset ke default!');
+        }
+        
+        function formatRupiah(num) {
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+        
+        function renderMenu() {
+            const container = document.getElementById('menu-list');
+            container.innerHTML = '';
+            
+            // Group by category
+            const makanan = menuData.filter(m => m.kategori === 'Makanan');
+            const minuman = menuData.filter(m => m.kategori === 'Minuman');
+            
+            container.innerHTML = '<h3 style="grid-column: 1/-1; color: #667eea;">🍚 Makanan</h3>';
+            makanan.forEach((menu) => {
+                const index = menuData.indexOf(menu);
+                container.innerHTML += createMenuCard(menu, index);
+            });
+            
+            container.innerHTML += '<h3 style="grid-column: 1/-1; color: #667eea; margin-top: 20px;">🥤 Minuman</h3>';
+            minuman.forEach((menu) => {
+                const index = menuData.indexOf(menu);
+                container.innerHTML += createMenuCard(menu, index);
+            });
+        }
+        
+        function createMenuCard(menu, index) {
+            const qty = orderItems[menu.nama] || 0;
+            return `
+                <div class="menu-item ${qty > 0 ? 'selected' : ''}" id="menu-${index}">
+                    <h4>${menu.nama}</h4>
+                    <div class="price">${formatRupiah(menu.harga)}</div>
+                    <span class="category">${menu.kategori}</span>
+                    <div class="quantity-control">
+                        <button onclick="updateQty('${menu.nama}', -1)">-</button>
+                        <span>${qty}</span>
+                        <button onclick="updateQty('${menu.nama}', 1)">+</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateQty(nama, delta) {
+            if (!orderItems[nama]) orderItems[nama] = 0;
+            orderItems[nama] = Math.max(0, orderItems[nama] + delta);
+            if (orderItems[nama] === 0) delete orderItems[nama];
+            renderMenu();
+            renderOrderItems();
+        }
+        
+        function renderOrderItems() {
+            const container = document.getElementById('order-items');
+            if (Object.keys(orderItems).length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Belum ada pesanan. Pilih menu di atas.</p>';
+                document.getElementById('order-summary').style.display = 'none';
+                return;
+            }
+            
+            let html = '<div style="margin-bottom: 20px;">';
+            for (const [nama, qty] of Object.entries(orderItems)) {
+                const menu = menuData.find(m => m.nama === nama);
+                if (menu) {
+                    html += `
+                        <div class="order-line">
+                            <span>${nama} x ${qty}</span>
+                            <span>${formatRupiah(menu.harga * qty)}</span>
+                        </div>
+                    `;
+                }
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function calculateOrder() {
+            if (Object.keys(orderItems).length === 0) {
+                alert('Silakan pilih menu terlebih dahulu!');
+                return;
+            }
+            
+            const items = Object.entries(orderItems).map(([nama, jumlah]) => ({ nama, jumlah }));
+            const result = calculateOrderTotal(items);
+            showReceipt(result);
+        }
+        
+        function calculateOrderTotal(items) {
+            const result = {
+                items: [],
+                subtotal: 0,
+                diskonB1G1: 0,
+                subtotalSetelahB1G1: 0,
+                pajak: 0,
+                biayaPelayanan: BIAYA_PELAYANAN,
+                totalSementara: 0,
+                diskon10Persen: 0,
+                totalAkhir: 0
+            };
+            
+            let subtotal = 0;
+            let jumlahMinuman = 0;
+            let hargaMinumanTermurah = 0;
+            
+            for (const item of items) {
+                const menu = menuData.find(m => m.nama === item.nama);
+                if (menu) {
+                    const totalItem = menu.harga * item.jumlah;
+                    subtotal += totalItem;
+                    
+                    result.items.push({
+                        nama: menu.nama,
+                        harga: menu.harga,
+                        jumlah: item.jumlah,
+                        total: totalItem
+                    });
+                    
+                    if (menu.kategori === 'Minuman') {
+                        jumlahMinuman += item.jumlah;
+                        if (hargaMinumanTermurah === 0 || menu.harga < hargaMinumanTermurah) {
+                            hargaMinumanTermurah = menu.harga;
+                        }
+                    }
+                }
+            }
+            
+            result.subtotal = subtotal;
+            
+            // B1G1 discount for beverages
+            let diskonB1G1 = 0;
+            if (subtotal > MINIMUM_B1G1_AMOUNT && jumlahMinuman >= 2 && hargaMinumanTermurah > 0) {
+                diskonB1G1 = hargaMinumanTermurah;
+            }
+            result.diskonB1G1 = diskonB1G1;
+            
+            const subtotalSetelahB1G1 = subtotal - diskonB1G1;
+            result.subtotalSetelahB1G1 = subtotalSetelahB1G1;
+            
+            // Tax 10%
+            const pajak = Math.trunc(subtotalSetelahB1G1 * 0.10);
+            result.pajak = pajak;
+            
+            const totalSementara = subtotalSetelahB1G1 + pajak + BIAYA_PELAYANAN;
+            result.totalSementara = totalSementara;
+            
+            // 10% discount if total > 100,000
+            let diskon10Persen = 0;
+            if (totalSementara > MINIMUM_DISCOUNT_AMOUNT) {
+                diskon10Persen = Math.trunc(totalSementara * 0.10);
+            }
+            result.diskon10Persen = diskon10Persen;
+            
+            result.totalAkhir = totalSementara - diskon10Persen;
+            
+            return result;
+        }
+        
+        function showReceipt(result) {
+            let html = `
+                <div class="receipt-header">
+                    <h3>🍽️ RESTORAN KAMI</h3>
+                    <p>Struk Pembayaran</p>
+                    <p>${new Date().toLocaleString('id-ID')}</p>
+                </div>
+                <div class="receipt-items">
+            `;
+            
+            result.items.forEach(item => {
+                html += `
+                    <div class="receipt-item">
+                        <span>${item.nama} x${item.jumlah}</span>
+                        <span>${formatRupiah(item.total)}</span>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+                <div style="border-top: 1px dashed #333; margin: 10px 0; padding-top: 10px;">
+                    <div class="receipt-item">
+                        <span>Subtotal</span>
+                        <span>${formatRupiah(result.subtotal)}</span>
+                    </div>
+            `;
+            
+            if (result.diskonB1G1 > 0) {
+                html += `
+                    <div class="receipt-item" style="color: green;">
+                        <span>Diskon B1G1</span>
+                        <span>-${formatRupiah(result.diskonB1G1)}</span>
+                    </div>
+                `;
+            }
+            
+            html += `
+                    <div class="receipt-item">
+                        <span>Pajak (10%)</span>
+                        <span>${formatRupiah(result.pajak)}</span>
+                    </div>
+                    <div class="receipt-item">
+                        <span>Biaya Pelayanan</span>
+                        <span>${formatRupiah(result.biayaPelayanan)}</span>
+                    </div>
+            `;
+            
+            if (result.diskon10Persen > 0) {
+                html += `
+                    <div class="receipt-item" style="color: green;">
+                        <span>Diskon 10%</span>
+                        <span>-${formatRupiah(result.diskon10Persen)}</span>
+                    </div>
+                `;
+            }
+            
+            html += `
+                </div>
+                <div class="receipt-total">
+                    <div class="receipt-item">
+                        <span>TOTAL</span>
+                        <span>${formatRupiah(result.totalAkhir)}</span>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #333; padding-top: 10px;">
+                    <p>Terima kasih!</p>
+                    <p>Selamat menikmati 😊</p>
+                </div>
+            `;
+            
+            document.getElementById('receipt-content').innerHTML = html;
+            document.getElementById('receipt-modal').classList.add('active');
+        }
+        
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.remove('active');
+        }
+        
+        function clearOrder() {
+            orderItems = {};
+            renderMenu();
+            renderOrderItems();
+        }
+        
+        function renderManagement() {
+            const container = document.getElementById('management-list');
+            container.innerHTML = '';
+            
+            menuData.forEach((menu, index) => {
+                container.innerHTML += `
+                    <div class="management-item">
+                        <div class="info">
+                            <h4>${menu.nama}</h4>
+                            <div class="details">${formatRupiah(menu.harga)} - ${menu.kategori}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="editPrice(${index})">Ubah Harga</button>
+                            <button class="btn btn-danger" onclick="deleteMenu(${index})">Hapus</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        function addMenu() {
+            const nama = document.getElementById('new-menu-name').value.trim();
+            const harga = parseInt(document.getElementById('new-menu-price').value);
+            const kategori = document.getElementById('new-menu-category').value;
+            
+            if (!nama || !harga || harga <= 0) {
+                alert('Silakan isi semua field dengan benar!');
+                return;
+            }
+            
+            // Check for duplicate name
+            if (menuData.some(m => m.nama.toLowerCase() === nama.toLowerCase())) {
+                alert('Menu dengan nama tersebut sudah ada!');
+                return;
+            }
+            
+            menuData.push({ nama, harga, kategori });
+            saveMenuToStorage();
+            
+            document.getElementById('new-menu-name').value = '';
+            document.getElementById('new-menu-price').value = '';
+            
+            renderMenu();
+            renderManagement();
+            alert('Menu berhasil ditambahkan!');
+        }
+        
+        function editPrice(index) {
+            editingIndex = index;
+            document.getElementById('edit-price').value = menuData[index].harga;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        function savePrice() {
+            const newPrice = parseInt(document.getElementById('edit-price').value);
+            if (!newPrice || newPrice <= 0) {
+                alert('Masukkan harga yang valid!');
+                return;
+            }
+            
+            menuData[editingIndex].harga = newPrice;
+            saveMenuToStorage();
+            
+            closeModal();
+            renderMenu();
+            renderManagement();
+            alert('Harga berhasil diubah!');
+        }
+        
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+            editingIndex = -1;
+        }
+        
+        function deleteMenu(index) {
+            if (!confirm('Apakah Anda yakin ingin menghapus menu ini?')) return;
+            
+            const menuName = menuData[index].nama;
+            menuData.splice(index, 1);
+            saveMenuToStorage();
+            
+            // Also remove from order if present
+            if (orderItems[menuName]) {
+                delete orderItems[menuName];
+            }
+            
+            renderMenu();
+            renderManagement();
+            renderOrderItems();
+            alert('Menu berhasil dihapus!');
+        }
+        
+        function showTab(tab, evt) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab + '-tab').classList.add('active');
+            if (evt && evt.target) {
+                evt.target.classList.add('active');
+            }
+        }
+        
+        // Initialize
+        loadMenu();
+        renderOrderItems();
+    </script>
+</body>
+</html>
