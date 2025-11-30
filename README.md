@@ -2,6 +2,12 @@
 
 Aplikasi kasir restoran sederhana dengan dukungan CLI (Command Line Interface) dan Web Interface.
 
+## 🚀 Demo Online (GitHub Pages)
+
+**[Coba langsung di sini! →](https://perdagingan.github.io/restoran-cashier-app-java/)**
+
+Versi demo online menggunakan localStorage untuk menyimpan data menu sehingga bisa langsung digunakan tanpa perlu setup server.
+
 ## Fitur
 
 ### Pemesanan Pelanggan
@@ -67,6 +73,10 @@ Buka browser dan akses: `http://localhost:8080` (atau port yang ditentukan)
 restoran-cashier-app-java/
 ├── pom.xml              # Maven configuration
 ├── README.md            # Dokumentasi
+├── docs/                # Static files untuk GitHub Pages
+│   └── index.html       # Web app standalone (client-side only)
+├── .github/workflows/   # GitHub Actions
+│   └── deploy-pages.yml # Auto deploy ke GitHub Pages
 └── src/
     ├── Menu.java        # Model class untuk menu
     ├── RestoranApp.java # Main app dengan CLI logic
@@ -98,3 +108,20 @@ Jalankan tanpa flag `--web` untuk mode command line tradisional.
 ## Lisensi
 
 MIT License
+
+## Deploy ke GitHub Pages
+
+GitHub Pages sudah dikonfigurasi otomatis. Setiap push ke branch `main` akan otomatis men-deploy ke GitHub Pages.
+
+### Cara Mengaktifkan GitHub Pages:
+1. Buka **Settings** repository di GitHub
+2. Pilih **Pages** di sidebar kiri
+3. Pada **Source**, pilih **GitHub Actions**
+4. Push ke branch `main` untuk memulai deployment
+
+Atau bisa juga menggunakan metode folder `/docs`:
+1. Buka **Settings** repository di GitHub
+2. Pilih **Pages** di sidebar kiri
+3. Pada **Source**, pilih **Deploy from a branch**
+4. Pilih branch `main` dan folder `/docs`
+5. Klik **Save**
