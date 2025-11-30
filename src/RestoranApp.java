@@ -420,6 +420,21 @@ public class RestoranApp {
     }
 
     public static void main(String[] args) {
+        // Check for --web flag to start web server
+        if (args.length > 0 && args[0].equals("--web")) {
+            int port = 8080;
+            if (args.length > 1) {
+                try {
+                    port = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid port number, using default 8080");
+                }
+            }
+            WebServer.start(port);
+            return;
+        }
+        
+        // CLI Mode
         // Inisialisasi Menu
         inisialisasiMenu();
 
